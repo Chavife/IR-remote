@@ -18,4 +18,24 @@
         android:layout_centerHorizontal="true"
         android:id="@+id/generate_btn"
         android:onClick="GenerateFrequency" />
+
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:inputType="number"
+        android:ems="10"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:id="@+id/hor_offset" />
+
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:inputType="numberSigned"
+        android:ems="10"
+        android:layout_below="@+id/hor_offset"
+        android:layout_alignLeft="@+id/hor_offset"
+        android:layout_alignStart="@+id/hor_offset"
+        android:id="@+id/pulse_offset" />
+
 </RelativeLayout>
