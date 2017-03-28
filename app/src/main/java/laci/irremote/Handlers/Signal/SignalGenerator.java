@@ -1,4 +1,4 @@
-package laci.irremote.Handlers;
+package laci.irremote.Handlers.Signal;
 
 import android.media.AudioFormat;
 import android.media.AudioManager;
@@ -9,12 +9,13 @@ import android.media.AudioTrack;
  * frequencies, horizontal alignments, frequency length etc.
  */
 
-public class SignalGenerator {
+public class SignalGenerator extends SampleRateDetector{
 
 
 
     private double duration = 0; // seconds
-    private final int sampleRate = 192000;
+    private final int sampleRate = DEVICE_MAX_SAMPLE_RATE;
+    //private final int sampleRate = 44100;
     private int numSamples = (int) (duration * sampleRate);
     private double sample[];
     private double Frequency = 18000; // Hz
@@ -54,16 +55,13 @@ public class SignalGenerator {
 
 
 
-    public void Generate(double Signal[]){
+    public void Generate(Integer SignalinSampleLength[]){
 
-
-        int SignalinSampleLength[] = new int[Signal.length];
 
         numSamples = 0;
 
-        for(int i = 0; i < Signal.length; i++){
-            SignalinSampleLength[i] = (int) (Signal[i]/10000 * sampleRate);
-            numSamples += SignalinSampleLength[i];
+        for(int i = 0; i < SignalinSampleLength.length; i++){
+            numSamples += Math.abs(SignalinSampleLength[i]);
         }
 
         duration = (numSamples * 1.0)/sampleRate;
@@ -77,11 +75,11 @@ public class SignalGenerator {
         double PulseOffset = (Period/2.0) * (-PulseOffsetPerc);
         boolean LogicalOne = true;
         int position = 0;
-        for(int i = 0; i < Signal.length; i++){
+        for(int i = 0; i < SignalinSampleLength.length; i++){
 
-            for(int j = 0; j< SignalinSampleLength[i]; j++){
+            for(int j = 0; j< Math.abs(SignalinSampleLength[i]); j++){
 
-                if(i%2 == 0){ //generate carrier frequency
+                if(SignalinSampleLength[i] > 0){ //generate carrier frequency
                     if(position < HalfPeriodCounter + PulseOffset && LogicalOne) sample[position] = 1;
                     else if (position < HalfPeriodCounter - PulseOffset && !LogicalOne) sample[position] = -1;
                     else{
@@ -94,7 +92,7 @@ public class SignalGenerator {
                 }
                 position++;
             }
-            if(i%2 == 1) HalfPeriodCounter += SignalinSampleLength[i];
+            if(SignalinSampleLength[i] < 0) HalfPeriodCounter += Math.abs(SignalinSampleLength[i]);
         }
 
 

@@ -14,8 +14,22 @@
         android:text="TEST ACTIVITY"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_centerVertical="true"
-        android:layout_centerHorizontal="true"
         android:id="@+id/test_activity_btn"
-        android:onClick="LaunchTest" />
+        android:onClick="LaunchTest"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="154dp" />
+
+    <Button
+        android:text="GUI Activity"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/test_activity_btn"
+        android:layout_marginTop="24dp"
+        android:id="@+id/gui_activity_btn"
+        android:layout_alignRight="@+id/test_activity_btn"
+        android:layout_alignEnd="@+id/test_activity_btn"
+        android:layout_alignLeft="@+id/test_activity_btn"
+        android:layout_alignStart="@+id/test_activity_btn"
+        android:onClick="LaunchGUI" />
 </RelativeLayout>

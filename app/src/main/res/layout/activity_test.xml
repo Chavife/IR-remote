@@ -17,7 +17,8 @@
         android:layout_centerVertical="true"
         android:layout_centerHorizontal="true"
         android:id="@+id/generate_btn"
-        android:onClick="GenerateFrequency" />
+        android:onClick="GenerateFrequency"
+        android:enabled="false" />
 
     <EditText
         android:layout_width="wrap_content"
@@ -26,7 +27,8 @@
         android:ems="10"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
-        android:id="@+id/hor_offset" />
+        android:id="@+id/hor_offset"
+        android:gravity="center_vertical|center_horizontal" />
 
     <EditText
         android:layout_width="wrap_content"
@@ -36,6 +38,17 @@
         android:layout_below="@+id/hor_offset"
         android:layout_alignLeft="@+id/hor_offset"
         android:layout_alignStart="@+id/hor_offset"
-        android:id="@+id/pulse_offset" />
+        android:id="@+id/pulse_offset"
+        android:gravity="center_vertical|center_horizontal" />
+
+    <Button
+        android:text="RECORD"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/generate_btn"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="30dp"
+        android:id="@+id/record_btn"
+        android:onClick="RecordSignal" />
 
 </RelativeLayout>
