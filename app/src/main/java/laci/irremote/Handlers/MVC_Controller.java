@@ -2,11 +2,13 @@ package laci.irremote.Handlers;
 
 import android.app.Application;
 import android.content.Context;
+import android.util.Pair;
 
 import laci.irremote.Handlers.Database.DBHandler;
+import laci.irremote.Handlers.Database.DataStructures.RemoteButton;
 
 /**
- * Created by laci on 28.3.2017.
+ * Controller for the MVC (Model-View-Controller) Pattern
  */
 
 public class MVC_Controller extends Application {
@@ -26,8 +28,16 @@ public class MVC_Controller extends Application {
 
     }
 
-    public DBHandler.IR_Button[][] getButtons(){
+    public RemoteButton[][] getButtons(){
         return DB.getButtons(columns,rows);
+    }
+
+    public Pair<Integer,Integer> getButtonPosition(int ID){
+        return DB.getButtonPosition(ID);
+    }
+
+    public void setButtonEnabled(int x, int y, boolean enabled){
+        DB.setButtonEnabled(x, y,enabled);
     }
 
 }

@@ -3,7 +3,6 @@ package laci.irremote;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.os.Build;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -25,7 +24,7 @@ public class MainActivity extends AppCompatActivity {
         startActivity(TestActivity);
     }
     public void LaunchGUI(View view){
-        Intent GUIActivity = new Intent(MainActivity.this, IRControllerActivity.class);
+        Intent GUIActivity = new Intent(MainActivity.this, RemoteControllerActivity.class);
         startActivity(GUIActivity);
     }
 

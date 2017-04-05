@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@android:color/darker_gray"
-    tools:context="laci.irremote.IRControllerActivity"
+    tools:context="laci.irremote.RemoteControllerActivity"
     android:id="@+id/full_screen_layout">
 
     <!-- The primary full-screen view. This can be replaced with whatever view

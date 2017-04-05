@@ -22,7 +22,7 @@
         </activity>
         <activity android:name=".TestActivity" />
         <activity
-            android:name=".IRControllerActivity"
+            android:name=".RemoteControllerActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:label="@string/title_activity_ircontroller"
             android:theme="@style/FullscreenTheme"></activity>

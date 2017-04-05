@@ -5,7 +5,7 @@ import android.media.AudioRecord;
 import android.util.Log;
 
 /**
- * Created by laci on 27.3.2017.
+ * Simple class for Extension of classes where wee need the maximal Devices Sample Rate
  */
 
 public class SampleRateDetector {
