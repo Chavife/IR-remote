@@ -1,16 +1,21 @@
 package laci.irremote;
 
+import android.content.Intent;
+import android.graphics.Point;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.PopupMenu;
-import android.util.Log;
 import android.util.Pair;
+import android.view.Display;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.GridLayout;
 import android.widget.LinearLayout;
+
+import java.util.ResourceBundle;
 
 import laci.irremote.Handlers.Database.DataStructures.RemoteButton;
 import laci.irremote.Handlers.MVC_Controller;
@@ -18,7 +23,7 @@ import laci.irremote.Handlers.MVC_Controller;
 
 /**
  * Main GUI Activity of the RemoteController
- * this activity contains all the Buttons in which you can control your devices with the module
+ * this activity contains all the Buttons_info in which you can control your devices with the module
  *
  * */
 
@@ -29,12 +34,15 @@ public class RemoteControllerActivity extends AppCompatActivity {
     private MVC_Controller Controller;
     private GridLayout ButtonsLayout;
     private Button SettingsBtn;
-    private RemoteButton[][] Buttons;
+    private RemoteButton[][] Buttons_info;
     private Button[][] RemoteButtons;
-    private int view_width = 0;
-    private int view_height = 0;
+    private int width = 0;
+    private int height = 0;
+    private int rows = 0;
+    private int columns = 0;
     private boolean EDITING_FLAG = false;
 
+    /**Here We initialize every Object we are going to need*/
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -44,14 +52,94 @@ public class RemoteControllerActivity extends AppCompatActivity {
         ButtonsLayout = (GridLayout) findViewById(R.id.buttons_layout);
         setFullscreen();
 
-        Controller = new MVC_Controller();
+        /**Screen size for counting maximal buttons*/
+        Display display = getWindowManager().getDefaultDisplay();
+        Point size = new Point();
+        display.getSize(size);
+        width = size.x;
+        height = size.y;
+
+        Controller = new MVC_Controller(this);
+        Controller.DBinit(width, height); //This Method initialize DB only at the first startup of the application
+
+        rows = Controller.getRows();
+        columns = Controller.getColumns();
 
     }
 
+    /**On Resume method is always called even if the Activity is not alive*/
     @Override
     protected void onResume() {
         super.onResume();
         setFullscreen();
+
+        Buttons_info = Controller.getButtons();
+
+        /*if we didn`t created the main view yet, do it*/
+        if(ButtonsLayout.getChildCount() <= 5) { //5 is a good enough constant to check if we did
+
+            RemoteButtons = new Button[columns][rows];
+
+            ButtonsLayout.setRowCount(rows);
+            ButtonsLayout.setColumnCount(columns);
+
+            for (int x = 0; x < columns; x++) {
+                for (int y = 0; y < rows; y++) {
+                    if (Buttons_info[x][y] != null) {
+
+                        final Button btn = Buttons_info[x][y].getAndroidButton(this);
+
+                        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                                (width / columns) - 20,
+                                (height / rows) - 20);
+                        params.setMargins(10,10,10,10);
+                        btn.setLayoutParams(params);
+
+
+                        btn.setOnTouchListener(new View.OnTouchListener() {
+                            @Override
+                            public boolean onTouch(View v, MotionEvent event) {
+                                if(event.getAction() == MotionEvent.ACTION_DOWN){
+                                    if (EDITING_FLAG) {
+                                        Intent BtnConfig = new Intent(RemoteControllerActivity.this, ButtonConfigurationActivity.class);
+                                        BtnConfig.putExtra("ID", v.getId());
+                                        startActivity(BtnConfig);
+                                    } else if(!EDITING_FLAG){
+                                        v.setAlpha((float) 0.7);
+                                        //TODO GENERATE METHOD
+                                    }
+                                }
+                                if(event.getAction() == MotionEvent.ACTION_UP){
+                                    v.setAlpha(1);
+                                }
+                                return true;
+                            }
+                        });
+
+                        RemoteButtons[x][y] = btn;
+                        ButtonsLayout.addView(btn);
+                    }
+                }
+            }
+            createSettingsBtn();
+            ButtonsLayout.addView(SettingsBtn);
+        }else { //if the Buttons are already made, only refresh Data of the Buttons
+            for (int x = 0; x < columns; x++) {
+                for (int y = 0; y < rows; y++) {
+                    if (Buttons_info[x][y] != null) {
+                        RemoteButtons[x][y].setBackgroundColor(Buttons_info[x][y].getColor());
+                        RemoteButtons[x][y].setText(Buttons_info[x][y].getName());
+                        if(EDITING_FLAG) {
+                            if (Buttons_info[x][y].isEnabled()) {
+                                RemoteButtons[x][y].setAlpha(1);
+                            } else {
+                                RemoteButtons[x][y].setAlpha((float) 0.20);
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 
 
@@ -62,64 +150,15 @@ public class RemoteControllerActivity extends AppCompatActivity {
     public void onWindowFocusChanged(boolean hasFocus) {
         super.onWindowFocusChanged(hasFocus);
         setFullscreen();
-        if(ButtonsLayout.getChildCount() <= 5) { //5 is a good enough constant
-            view_width = Layout.getWidth();
-            view_height = Layout.getHeight();
-
-            Log.i("SIZES", view_width + " " + view_height);
-
-            Controller.init(this, view_height, view_width);
-
-            Buttons = Controller.getButtons();
-            RemoteButtons = new Button[Buttons.length][Buttons[0].length];
-
-            ButtonsLayout.setRowCount(Buttons[0].length);
-            ButtonsLayout.setColumnCount(Buttons.length);
-
-
-            for (int x = 0; x < Buttons.length; x++) {
-                for (int y = 0; y < Buttons[x].length; y++) {
-                    if (Buttons[x][y] != null) {
-                        final Button btn = Buttons[x][y].getAndroidButton(getApplicationContext());
-                        btn.setPadding(0, 0, 0, 0);
-                        btn.setLayoutParams(new LinearLayout.LayoutParams(view_width / 5, view_height / Buttons[x].length));
-                        btn.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                Pair<Integer,Integer> pos = Controller.getButtonPosition(btn.getId());
-                                if (EDITING_FLAG) {
-                                    if(!Buttons[pos.first][pos.second].isEnabled()){
-                                        btn.setAlpha(1);
-                                        Buttons[pos.first][pos.second].setEnabled(true);
-                                        Controller.setButtonEnabled(pos.first,pos.second,true);
-                                    }else{
-                                        btn.setAlpha((float) 0.5);
-                                        Buttons[pos.first][pos.second].setEnabled(false);
-                                        Controller.setButtonEnabled(pos.first,pos.second,false);
-                                    }
-
-                                } else if(!EDITING_FLAG){
-
-                                }
-                            }
-                        });
-                        RemoteButtons[x][y] = btn;
-                        ButtonsLayout.addView(btn);
-                    }
-                }
-            }
-            createSettingsBtn();
-            ButtonsLayout.addView(SettingsBtn);
-        }
     }
 
 
     /**This is an kind of Constructor for the Settings button which sits in the right bottom
      * corner of this activity*/
     private void createSettingsBtn(){
-        SettingsBtn = new Button(getApplicationContext());
+        SettingsBtn = new Button(this);
         SettingsBtn.setBackground(getResources().getDrawable(android.R.drawable.ic_menu_preferences));
-        SettingsBtn.setLayoutParams(new LinearLayout.LayoutParams(view_width / 5, view_width / 5));
+        SettingsBtn.setLayoutParams(new LinearLayout.LayoutParams((width / columns) - 10, (height / rows) - 10));
 
         SettingsBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -138,14 +177,16 @@ public class RemoteControllerActivity extends AppCompatActivity {
                     public boolean onMenuItemClick(MenuItem item) {
                         switch (item.getItemId()) {
                             case R.id.manage_remote_btns:
-                                for(int x = 0 ; x < RemoteButtons.length ; x++){
-                                    for(int y = 0 ; y < RemoteButtons[x].length; y++){
+
+                                /*Enable all the Buttons to Enable Editing of them*/
+                                for(int x = 0 ; x < columns ; x++){
+                                    for(int y = 0 ; y < rows; y++){
                                         if(RemoteButtons[x][y] != null){
                                             if(!RemoteButtons[x][y].isEnabled() && item.getTitle() == "Manage Buttons"){
                                                 RemoteButtons[x][y].setEnabled(true);
-                                                RemoteButtons[x][y].setAlpha((float) 0.5);
+                                                RemoteButtons[x][y].setAlpha((float) 0.20);
                                                 EDITING_FLAG = true;
-                                            }else if(!Buttons[x][y].isEnabled() && item.getTitle() == "Lock Buttons"){
+                                            }else if(!Buttons_info[x][y].isEnabled() && item.getTitle() == "Lock Buttons"){
                                                 RemoteButtons[x][y].setEnabled(false);
                                                 RemoteButtons[x][y].setAlpha(0);
                                                 EDITING_FLAG = false;

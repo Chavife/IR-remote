@@ -32,6 +32,7 @@ public class DBHandler extends SQLiteOpenHelper {
     private static final String BUTTON_NAME = "name"; /**Name which is Showed in The RemoteControllerActivity*/
     private static final String BUTTON_X = "x_pos";
     private static final String BUTTON_Y = "y_pos";
+    private static final String BUTTON_COLOR = "color";
     private static final String BUTTON_ENABLED = "enabled";
 
     /** Database table of Signals.
@@ -78,6 +79,7 @@ public class DBHandler extends SQLiteOpenHelper {
                 BUTTON_NAME + " TEXT, " +
                 BUTTON_X + " INTEGER, " +
                 BUTTON_Y + " INTEGER, " +
+                BUTTON_COLOR + " INTEGER, " +
                 BUTTON_ENABLED + " INTEGER" +
                 ");";
 
@@ -140,6 +142,7 @@ public class DBHandler extends SQLiteOpenHelper {
                     values.put(BUTTON_NAME, "");
                     values.put(BUTTON_X, x);
                     values.put(BUTTON_Y, y);
+                    values.put(BUTTON_COLOR , -5123641); //Default MINT Color
                     db.insert(TABLE_BUTTONS,null,values);
                 }
             }
@@ -157,7 +160,7 @@ public class DBHandler extends SQLiteOpenHelper {
     }
 
     /** returns the x and y position in the GridLayout of the button with the given ID*/
-    public Pair<Integer,Integer> getButtonPosition(int ID){
+    public RemoteButton getButtonInfo(int ID){
         SQLiteDatabase db = getWritableDatabase();
 
         String q = "SELECT * FROM " + TABLE_BUTTONS + " WHERE " + BUTTON_ID + " = " + ID + ";";
@@ -165,24 +168,41 @@ public class DBHandler extends SQLiteOpenHelper {
 
         c.moveToFirst();
 
-        int x,y;
+        RemoteButton btn = null;
         if(!c.isAfterLast()){
-            x = c.getInt(c.getColumnIndex(BUTTON_X));
-            y = c.getInt(c.getColumnIndex(BUTTON_Y));
-        }else{ //in case of invalid ID
-            x=-1;
-            y=-1;
+            btn = new RemoteButton(c.getInt(c.getColumnIndex(BUTTON_ID)),
+                    c.getString(c.getColumnIndex((BUTTON_NAME))),
+                    c.getInt(c.getColumnIndex(BUTTON_ENABLED)) > 0,
+                    c.getInt(c.getColumnIndex(BUTTON_COLOR)));
         }
 
-        return new Pair<>(new Integer(x), new Integer(y));
+        return btn;
     }
 
-    /**this sets the Button with an given x and y position to enable ar disable*/
-    public void setButtonEnabled(int x, int y, boolean enabled){
+    /**this sets the Button with an given ID to enable ar disable*/
+    public void setButtonEnabled(int ID, boolean enabled){
         String query =  "UPDATE " + TABLE_BUTTONS +
                 " SET " + BUTTON_ENABLED + " = " + ((enabled) ? 1 : 0 )+
-                " WHERE " + BUTTON_X + " = " + x +
-                " AND " + BUTTON_Y + " = " + y + ";"
+                " WHERE " + BUTTON_ID + " = " + ID + ";"
+                ;
+        SQLiteDatabase sqLiteDatabase = getWritableDatabase();
+        sqLiteDatabase.execSQL(query);
+    }
+
+    public void setButtonColor(int ID, int Color){
+        String query =  "UPDATE " + TABLE_BUTTONS +
+                " SET " + BUTTON_COLOR + " = " + Color+
+                " WHERE " + BUTTON_ID + " = " + ID + ";"
+                ;
+        SQLiteDatabase sqLiteDatabase = getWritableDatabase();
+        sqLiteDatabase.execSQL(query);
+    }
+
+    /*TODO PREPARED STATEMENT*/
+    public void setButtonText(int ID, String Name){
+        String query =  "UPDATE " + TABLE_BUTTONS +
+                " SET " + BUTTON_NAME + " = '" + Name+
+                "' WHERE " + BUTTON_ID + " = " + ID + ";"
                 ;
         SQLiteDatabase sqLiteDatabase = getWritableDatabase();
         sqLiteDatabase.execSQL(query);
@@ -206,7 +226,8 @@ public class DBHandler extends SQLiteOpenHelper {
             int y = c.getInt(c.getColumnIndex(BUTTON_Y));
             Buttons[x][y] = new RemoteButton(c.getInt(c.getColumnIndex(BUTTON_ID)),
                                              c.getString(c.getColumnIndex((BUTTON_NAME))),
-                                             c.getInt(c.getColumnIndex(BUTTON_ENABLED)) > 0);
+                                             c.getInt(c.getColumnIndex(BUTTON_ENABLED)) > 0,
+                                             c.getInt(c.getColumnIndex(BUTTON_COLOR)));
             c.moveToNext();
         }
 

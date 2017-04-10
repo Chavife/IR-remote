@@ -2,7 +2,10 @@ package laci.irremote.Handlers;
 
 import android.app.Application;
 import android.content.Context;
+import android.graphics.Point;
+import android.transition.CircularPropagation;
 import android.util.Pair;
+import android.view.Display;
 
 import laci.irremote.Handlers.Database.DBHandler;
 import laci.irremote.Handlers.Database.DataStructures.RemoteButton;
@@ -17,27 +20,43 @@ public class MVC_Controller extends Application {
     int columns = 5;
     int rows = 0;
 
-    public void init(Context c,int view_height, int view_width){
-
+    public MVC_Controller(Context c) {
         DB = new DBHandler(c,null);
+    }
 
-        int button_size = (int) Math.floor(view_width/columns);
-        rows = (int) Math.floor(view_height/(button_size-10));
+    public void DBinit(int screen_width, int screen_height){
+        int button_size = (int) Math.floor(screen_width/columns);
+        rows = (int) Math.floor(screen_height/(button_size-10));
 
         DB.initDB(columns,rows,38000,90,0);
 
+    }
+
+    public int getRows(){
+        return rows;
+    }
+    public int getColumns(){
+        return columns;
     }
 
     public RemoteButton[][] getButtons(){
         return DB.getButtons(columns,rows);
     }
 
-    public Pair<Integer,Integer> getButtonPosition(int ID){
-        return DB.getButtonPosition(ID);
+    public RemoteButton getButtonInfo(int ID){
+        return DB.getButtonInfo(ID);
     }
 
-    public void setButtonEnabled(int x, int y, boolean enabled){
-        DB.setButtonEnabled(x, y,enabled);
+    public void setButtonEnabled(int ID, boolean enabled){
+        DB.setButtonEnabled(ID, enabled);
+    }
+
+    public void setButtonColor(int ID, int Color){
+        DB.setButtonColor(ID, Color);
+    }
+
+    public void setButtonText(int ID, String Text){
+        DB.setButtonText(ID, Text);
     }
 
 }

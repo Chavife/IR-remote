@@ -13,14 +13,16 @@ public class RemoteButton extends Application{
     private int ID; /**Database ID of the button*/
     private String Name; /**User defined name which is showed in the RemoteControlActivity*/
     private boolean Enabled; /**Flag if the RemoteButton is enabled or disabled*/
+    private int Color; /**Color value of the button in Integer*/
 
 
 
     /**Constructor*/
-    public RemoteButton(int ID, String name, boolean enabled) {
+    public RemoteButton(int ID, String name, boolean enabled, int color) {
         this.ID = ID;
         Name = name;
         Enabled = enabled;
+        Color = color;
     }
 
     /*Getters*/
@@ -36,11 +38,14 @@ public class RemoteButton extends Application{
         return Enabled;
     }
 
+    public int getColor() { return Color; }
+
     /*This Getter returns an actual Android Button version based on the variables*/
     public Button getAndroidButton(Context context){
         Button btn = new Button(context);
         btn.setEnabled(Enabled);
         btn.setId(ID);
+        btn.setBackgroundColor(Color);
         if(!Enabled){
             btn.setAlpha(0);
         }
@@ -62,5 +67,5 @@ public class RemoteButton extends Application{
         Enabled = enabled;
     }
 
-
+    public void setColor(int color) { Color = color; }
 }
