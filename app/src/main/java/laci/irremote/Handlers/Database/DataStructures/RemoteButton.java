@@ -2,6 +2,8 @@ package laci.irremote.Handlers.Database.DataStructures;
 
 import android.app.Application;
 import android.content.Context;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.widget.Button;
 
 /**
@@ -45,7 +47,8 @@ public class RemoteButton extends Application{
         Button btn = new Button(context);
         btn.setEnabled(Enabled);
         btn.setId(ID);
-        btn.setBackgroundColor(Color);
+        btn.getBackground().setColorFilter(Color, PorterDuff.Mode.SRC_ATOP);
+        //btn.setBackgroundColor(Color);
         if(!Enabled){
             btn.setAlpha(0);
         }

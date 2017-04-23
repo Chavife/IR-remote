@@ -1,4 +1,4 @@
-package laci.irremote;
+package laci.irremote.Views;
 
 /**
  * Created by laci on 5.4.2017.
@@ -15,11 +15,9 @@ import android.graphics.Paint;
 import android.graphics.Point;
 import android.graphics.Rect;
 import android.util.AttributeSet;
-import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup.LayoutParams;
-import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;

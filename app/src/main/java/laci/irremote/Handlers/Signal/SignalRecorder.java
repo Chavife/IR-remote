@@ -101,83 +101,8 @@ public class SignalRecorder extends SampleRateDetector {
 
     }
 
-    public Short[] returnData(){
-        return Data.toArray(new Short[Data.size()]);
-    }
-
-    public Integer[] returnDecodedData(){
-        boolean signalStarted = false;
-        boolean switched = true;
-        double threshold = 0.1;
-        LinkedList<Integer> DecodedSignal = new LinkedList<>();
-        DecodedSignal.add(new Integer(-70));
-        for(short value : Data){
-
-            double amp = value/32765.0; //amplitude value in range of 0-1
-
-            if(amp < -threshold && !signalStarted) signalStarted = true; //we cut the silence from the beggining
-
-            if(signalStarted){
-                if(switched && amp < -threshold && DecodedSignal.getLast() <= -30){
-                    DecodedSignal.add(new Integer(0));
-                    switched = false;
-                }
-
-                if(!switched && amp > threshold && DecodedSignal.getLast() >= 50){
-                    DecodedSignal.add(new Integer(0));
-                    switched = true;
-                }
-
-                if(!switched){
-                    DecodedSignal.set(DecodedSignal.size()-1,DecodedSignal.getLast()+1);
-                }else if (switched){
-                    DecodedSignal.set(DecodedSignal.size()-1,DecodedSignal.getLast()-1);
-                }
-            }
-        }
-        return DecodedSignal.toArray(new Integer[DecodedSignal.size()]);
+    public ArrayList<Short> getRecorderData(){
+        return Data;
     }
 
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/*
-    //convert short to byte
-    private byte[] short2byte(short[] sData) {
-
-        int shortArrsize = sData.length;
-        byte[] bytes = new byte[shortArrsize * 2];
-        for (int i = 0; i < shortArrsize; i++) {
-            bytes[i * 2] = (byte) (sData[i] & 0x00FF);
-            bytes[(i * 2) + 1] = (byte) (sData[i] >> 8);
-            sData[i] = 0;
-        }
-        return bytes;
-
-    }
-    */

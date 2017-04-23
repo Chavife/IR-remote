@@ -10,7 +10,10 @@ import android.database.sqlite.SQLiteStatement;
 import android.util.Log;
 import android.util.Pair;
 
+import java.util.ArrayList;
+
 import laci.irremote.Handlers.Database.DataStructures.RemoteButton;
+import laci.irremote.Handlers.Database.DataStructures.Signal;
 
 /**
  * This class is the Database Handler for this application,
@@ -28,8 +31,8 @@ public class DBHandler extends SQLiteOpenHelper {
      * where all the Button information is stored about and actual button
      * The RemoteButton data structure class highly depend on this table.*/
     private static final String TABLE_BUTTONS = "Buttons";
-    private static final String BUTTON_ID = "ID";
-    private static final String BUTTON_NAME = "name"; /**Name which is Showed in The RemoteControllerActivity*/
+    private static final String BUTTON_ID = "button_ID";
+    private static final String BUTTON_NAME = "button_name"; /**Name which is Showed in The RemoteControllerActivity*/
     private static final String BUTTON_X = "x_pos";
     private static final String BUTTON_Y = "y_pos";
     private static final String BUTTON_COLOR = "color";
@@ -39,9 +42,10 @@ public class DBHandler extends SQLiteOpenHelper {
      * This is where are all the Signals Stored
      * signal uses a Device setting for optimal function*/
     private static final String TABLE_SIGNALS = "Signals";
-    private static final String SIGNAL_ID = "ID";
-    private static final String SIGNAL_NAME = "name"; /**Name of an actual Button on the original remote*/
+    private static final String SIGNAL_ID = "signal_ID";
+    private static final String SIGNAL_NAME = "signal_name"; /**Name of an actual Button on the original remote*/
     private static final String SIGNAL_SIGNAL = "signal";
+    private static final String SIGNAL_REPEAT = "repeat";
     private static final String SIGNAL_SETTING = "setting_id";
 
     /** Database table which connects Buttons and Signals together.
@@ -56,8 +60,8 @@ public class DBHandler extends SQLiteOpenHelper {
      *
      * All the buttons connected to the Same device can use the same configuration*/
     private static final String TABLE_SETTINGS = "Settings";
-    private static final String SETTING_ID = "ID";
-    private static final String SETTING_NAME = "name"; /**Name of the device*/
+    private static final String SETTING_ID = "setting_ID";
+    private static final String SETTING_NAME = "setting_name"; /**Name of the device*/
     private static final String SETTING_FREQUENCY = "frequency";
     private static final String SETTING_HOR_OFF = "hor_offset";
     private static final String SETTING_VER_OFF = "ver_offset";
@@ -87,6 +91,7 @@ public class DBHandler extends SQLiteOpenHelper {
                 SIGNAL_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 SIGNAL_NAME + " TEXT, " +
                 SIGNAL_SIGNAL + " TEXT, " +
+                SIGNAL_REPEAT + " INTEGER, " +
                 SIGNAL_SETTING + " INTEGER" +
                 ");";
 
@@ -142,7 +147,7 @@ public class DBHandler extends SQLiteOpenHelper {
                     values.put(BUTTON_NAME, "");
                     values.put(BUTTON_X, x);
                     values.put(BUTTON_Y, y);
-                    values.put(BUTTON_COLOR , -5123641); //Default MINT Color
+                    values.put(BUTTON_COLOR , -12303292); //Default DARK GRAY Color
                     db.insert(TABLE_BUTTONS,null,values);
                 }
             }
@@ -198,14 +203,13 @@ public class DBHandler extends SQLiteOpenHelper {
         sqLiteDatabase.execSQL(query);
     }
 
-    /*TODO PREPARED STATEMENT*/
-    public void setButtonText(int ID, String Name){
-        String query =  "UPDATE " + TABLE_BUTTONS +
-                " SET " + BUTTON_NAME + " = '" + Name+
-                "' WHERE " + BUTTON_ID + " = " + ID + ";"
-                ;
+    public void setButtonName(int ID, String Name){
         SQLiteDatabase sqLiteDatabase = getWritableDatabase();
-        sqLiteDatabase.execSQL(query);
+        SQLiteStatement stmt = sqLiteDatabase.compileStatement("UPDATE " + TABLE_BUTTONS +
+                                                                " SET " + BUTTON_NAME + " = ?" +
+                                                                " WHERE " + BUTTON_ID + " = " + ID + ";");
+        stmt.bindString(1, Name);
+        stmt.execute();
     }
 
 
@@ -234,4 +238,176 @@ public class DBHandler extends SQLiteOpenHelper {
         return Buttons;
     }
 
+    public int createNewSignal(){
+        SQLiteDatabase db = getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+        values.put(SIGNAL_NAME, "");
+        values.put(SIGNAL_SIGNAL, "0");
+        values.put(SIGNAL_REPEAT, 3); //3 is most common so we make it as default value
+        values.put(SIGNAL_SETTING, 1);
+        db.insert(TABLE_SIGNALS,null,values);
+
+        String Query = "SELECT MAX(" + SIGNAL_ID + ")"+
+                        " FROM " + TABLE_SIGNALS + ";";
+
+        Cursor c = db.rawQuery(Query,null);
+
+        c.moveToFirst();
+        int ID = c.getInt(c.getColumnIndex("MAX(" + SIGNAL_ID + ")"));
+        return ID;
+    }
+
+    public ArrayList<Signal> getSignalsForButton(int ButtonID){
+        SQLiteDatabase db = getReadableDatabase();
+        String checkQuery = "SELECT * FROM " + TABLE_SIGNALS + " AS si, " + TABLE_SETTINGS + " AS se" +
+                            " WHERE si." + SIGNAL_ID + " IN" +
+                            " (SELECT " + BUTTON_SIGNAL_SIGNAL +
+                            " FROM " + TABLE_BUTTON_SIGNAL +
+                            " WHERE " + BUTTON_SIGNAL_BUTTON + "=" + ButtonID + ") " + "AND" +
+                            " si." + SIGNAL_SETTING + " = se." + SETTING_ID +";";
+        Cursor c = db.rawQuery(checkQuery,null);
+
+        ArrayList<Signal> Signals = new ArrayList<>();
+
+        c.moveToFirst();
+        while(!c.isAfterLast()){
+            Signals.add(new Signal(c.getInt(c.getColumnIndex(SIGNAL_ID)),
+                                        c.getString(c.getColumnIndex(SIGNAL_NAME)),
+                                        c.getString(c.getColumnIndex(SIGNAL_SIGNAL)),
+                                        c.getInt(c.getColumnIndex(SIGNAL_REPEAT)),
+                                        c.getInt(c.getColumnIndex(SIGNAL_SETTING)),
+                                        c.getString(c.getColumnIndex(SETTING_NAME))));
+            c.moveToNext();
+        }
+
+        return Signals;
+    }
+
+    public ArrayList<Signal> getComplementarySignalsForButton(int ButtonID){
+        SQLiteDatabase db = getReadableDatabase();
+        String checkQuery = "SELECT * FROM " + TABLE_SIGNALS + " AS si, " + TABLE_SETTINGS + " AS se" +
+                " WHERE si." + SIGNAL_ID + " NOT IN" +
+                " (SELECT " + BUTTON_SIGNAL_SIGNAL +
+                " FROM " + TABLE_BUTTON_SIGNAL +
+                " WHERE " + BUTTON_SIGNAL_BUTTON + "=" + ButtonID + ") " + "AND" +
+                " si." + SIGNAL_SETTING + " = se." + SETTING_ID +";";
+        Cursor c = db.rawQuery(checkQuery,null);
+
+        ArrayList<Signal> Signals = new ArrayList<>();
+
+        c.moveToFirst();
+        while(!c.isAfterLast()){
+            Signals.add(new Signal(c.getInt(c.getColumnIndex(SIGNAL_ID)),
+                    c.getString(c.getColumnIndex(SIGNAL_NAME)),
+                    c.getString(c.getColumnIndex(SIGNAL_SIGNAL)),
+                    c.getInt(c.getColumnIndex(SIGNAL_REPEAT)),
+                    c.getInt(c.getColumnIndex(SIGNAL_SETTING)),
+                    c.getString(c.getColumnIndex(SETTING_NAME))));
+            c.moveToNext();
+        }
+
+        return Signals;
+    }
+
+    public void addSignalToButton(int ButtonID, int SignalID){
+        SQLiteDatabase db = getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+        values.put(BUTTON_SIGNAL_BUTTON, ButtonID);
+        values.put(BUTTON_SIGNAL_SIGNAL, SignalID);
+        db.insert(TABLE_BUTTON_SIGNAL,null,values);
+        Log.i("DB" , ButtonID + " "  + SignalID);
+    }
+
+    public void removeSignalFromButton(int ButtonId, int SignalID){
+        String query = "DELETE FROM " + TABLE_BUTTON_SIGNAL +
+                       " WHERE " + BUTTON_SIGNAL_BUTTON + "=" + ButtonId +
+                       " AND " + BUTTON_SIGNAL_SIGNAL + "=" + SignalID + ";";
+        SQLiteDatabase db = getWritableDatabase();
+        db.execSQL(query);
+    }
+
+    public void removeSignal(int SignalID){
+        String query1 = "DELETE FROM " + TABLE_BUTTON_SIGNAL +
+                " WHERE " + BUTTON_SIGNAL_SIGNAL + "=" + SignalID + ";";
+        String query2 = "DELETE FROM " + TABLE_SIGNALS +
+                " WHERE " + SIGNAL_ID + "=" + SignalID + ";";
+        SQLiteDatabase db = getWritableDatabase();
+        db.execSQL(query1);
+        db.execSQL(query2);
+    }
+
+    public ArrayList<Signal> getAllSignals(){
+        SQLiteDatabase db = getReadableDatabase();
+        String checkQuery = "SELECT *" +
+                " FROM " + TABLE_SIGNALS + " AS si, " + TABLE_SETTINGS + " AS se" +
+                " WHERE si." + SIGNAL_SETTING + " = se." + SETTING_ID +";";
+        Cursor c = db.rawQuery(checkQuery,null);
+
+        ArrayList<Signal> Signals = new ArrayList<>();
+
+        c.moveToFirst();
+        while(!c.isAfterLast()){
+            Signals.add(new Signal(c.getInt(c.getColumnIndex(SIGNAL_ID)),
+                    c.getString(c.getColumnIndex(SIGNAL_NAME)),
+                    c.getString(c.getColumnIndex(SIGNAL_SIGNAL)),
+                    c.getInt(c.getColumnIndex(SIGNAL_REPEAT)),
+                    c.getInt(c.getColumnIndex(SIGNAL_SETTING)),
+                    c.getString(c.getColumnIndex(SETTING_NAME))));
+            c.moveToNext();
+        }
+
+        return Signals;
+    }
+
+    public Signal getSignal(int SignalID){
+        SQLiteDatabase db = getReadableDatabase();
+        String checkQuery = "SELECT * FROM " + TABLE_SIGNALS + " AS si, " + TABLE_SETTINGS + " AS se" +
+                " WHERE si." + SIGNAL_SETTING + " = se." + SETTING_ID +" AND" +
+                " si." + SIGNAL_ID + " = " + SignalID + ";";
+        Cursor c = db.rawQuery(checkQuery,null);
+
+        Signal s = null;
+
+        c.moveToFirst();
+        if(!c.isAfterLast()){
+            s = new Signal(c.getInt(c.getColumnIndex(SIGNAL_ID)),
+                    c.getString(c.getColumnIndex(SIGNAL_NAME)),
+                    c.getString(c.getColumnIndex(SIGNAL_SIGNAL)),
+                    c.getInt(c.getColumnIndex(SIGNAL_REPEAT)),
+                    c.getInt(c.getColumnIndex(SIGNAL_SETTING)),
+                    c.getString(c.getColumnIndex(SETTING_NAME)));
+        }
+
+        return s;
+    }
+
+    public void setSignalName(int ID, String Name){
+        SQLiteDatabase sqLiteDatabase = getWritableDatabase();
+        SQLiteStatement stmt = sqLiteDatabase.compileStatement("UPDATE " + TABLE_SIGNALS +
+                " SET " + SIGNAL_NAME + " = ?" +
+                " WHERE " + SIGNAL_ID + " = " + ID + ";");
+        stmt.bindString(1, Name);
+        stmt.execute();
+    }
+
+    public void setSignalRepeat(int ID, String Repeat){
+        SQLiteDatabase sqLiteDatabase = getWritableDatabase();
+        SQLiteStatement stmt = sqLiteDatabase.compileStatement("UPDATE " + TABLE_SIGNALS +
+                " SET " + SIGNAL_REPEAT + " = ?" +
+                " WHERE " + SIGNAL_ID + " = " + ID + ";");
+        stmt.bindString(1, Repeat);
+        stmt.execute();
+    }
+
+
+    public void setSignalSignal(int ID, String Name){
+        SQLiteDatabase sqLiteDatabase = getWritableDatabase();
+        SQLiteStatement stmt = sqLiteDatabase.compileStatement("UPDATE " + TABLE_SIGNALS +
+                " SET " + SIGNAL_SIGNAL + " = ?" +
+                " WHERE " + SIGNAL_ID + " = " + ID + ";");
+        stmt.bindString(1, Name);
+        stmt.execute();
+    }
 }

@@ -2,4 +2,6 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:id="@+id/manage_remote_btns"  android:title="Manage Buttons"></item>
     <item android:id="@+id/manage_settings"  android:title="Device Settings"></item>
+    <item android:id="@+id/manage_signals"  android:title="Signals"></item>
+
 </menu>

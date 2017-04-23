@@ -1,7 +1,9 @@
 package laci.irremote;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.graphics.Point;
+import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -83,18 +85,17 @@ public class RemoteControllerActivity extends AppCompatActivity {
             ButtonsLayout.setRowCount(rows);
             ButtonsLayout.setColumnCount(columns);
 
+            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                    (width / columns),
+                    (height / rows));
+
             for (int x = 0; x < columns; x++) {
                 for (int y = 0; y < rows; y++) {
                     if (Buttons_info[x][y] != null) {
 
                         final Button btn = Buttons_info[x][y].getAndroidButton(this);
 
-                        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
-                                (width / columns) - 20,
-                                (height / rows) - 20);
-                        params.setMargins(10,10,10,10);
                         btn.setLayoutParams(params);
-
 
                         btn.setOnTouchListener(new View.OnTouchListener() {
                             @Override
@@ -105,7 +106,7 @@ public class RemoteControllerActivity extends AppCompatActivity {
                                         BtnConfig.putExtra("ID", v.getId());
                                         startActivity(BtnConfig);
                                     } else if(!EDITING_FLAG){
-                                        v.setAlpha((float) 0.7);
+                                        v.setAlpha((float) 0.5);
                                         //TODO GENERATE METHOD
                                     }
                                 }
@@ -127,7 +128,7 @@ public class RemoteControllerActivity extends AppCompatActivity {
             for (int x = 0; x < columns; x++) {
                 for (int y = 0; y < rows; y++) {
                     if (Buttons_info[x][y] != null) {
-                        RemoteButtons[x][y].setBackgroundColor(Buttons_info[x][y].getColor());
+                        RemoteButtons[x][y].getBackground().setColorFilter(Buttons_info[x][y].getColor(), PorterDuff.Mode.SRC_ATOP);
                         RemoteButtons[x][y].setText(Buttons_info[x][y].getName());
                         if(EDITING_FLAG) {
                             if (Buttons_info[x][y].isEnabled()) {
@@ -196,6 +197,10 @@ public class RemoteControllerActivity extends AppCompatActivity {
                                 }
                                 return true;
                             case R.id.manage_settings:
+                                return true;
+                            case R.id.manage_signals:
+                                Intent signals = new Intent(RemoteControllerActivity.this, SignalsActivity.class);
+                                startActivity(signals);
                                 return true;
                         }
                         return false;

@@ -12,7 +12,6 @@ import android.media.AudioTrack;
 public class SignalGenerator extends SampleRateDetector{
 
 
-
     private double duration = 0; // seconds
     private final int sampleRate = DEVICE_MAX_SAMPLE_RATE;
     //private final int sampleRate = 44100;
