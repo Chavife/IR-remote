@@ -31,7 +31,9 @@
             android:name=".SignalDecodingActivity"
             android:label="@string/title_activity_signal_decoding"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
-        <activity android:name=".SignalsActivity"></activity>
+        <activity android:name=".SignalsActivity" />
+        <activity android:name=".DevicesActivity" />
+        <activity android:name=".DeviceSettingsActivity"></activity>
     </application>
 
 </manifest>

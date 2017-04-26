@@ -7,6 +7,7 @@ import android.widget.Button;
 import java.util.ArrayList;
 
 import laci.irremote.Handlers.Database.DBHandler;
+import laci.irremote.Handlers.Database.DataStructures.DeviceSetting;
 import laci.irremote.Handlers.Database.DataStructures.RemoteButton;
 import laci.irremote.Handlers.Database.DataStructures.Signal;
 
@@ -53,6 +54,8 @@ public class MVC_Controller extends Application {
 
     public ArrayList<Signal> getAllSignals(){return DB.getAllSignals();}
 
+    public ArrayList<Signal> getSignalsForDevice(int DeviceID){return DB.getSignalsForSevice(DeviceID);}
+
     public Signal getSignal(int SignalID){ return DB.getSignal(SignalID);}
 
     public void removeSignal(int SignalID){ DB.removeSignal(SignalID);}
@@ -79,6 +82,8 @@ public class MVC_Controller extends Application {
         }
     }
 
+    public void setSignalsDevice(int SignalID, int DeviceID){DB.setSignalsDevice(SignalID,DeviceID);}
+
     public int createNewSignal(){ return  DB.createNewSignal();}
 
     public void setButtonEnabled(int ID, boolean enabled){
@@ -92,5 +97,21 @@ public class MVC_Controller extends Application {
     public void setButtonName(int ID, String Text){
         DB.setButtonName(ID, Text);
     }
+
+    public int createNewDevice(){ return  DB.createNewDevice();}
+
+    public ArrayList<DeviceSetting> getAllDevices(){return DB.getAllDevices();}
+
+    public DeviceSetting getDevice(int DeviceID){ return DB.getDevice(DeviceID);}
+
+    public void removeDevice(int DeviceID){ DB.removeDevice(DeviceID);}
+
+    public void setDeviceName(int DeviceID, String Text){ DB.setDeviceName(DeviceID, Text);}
+
+    public void setDeviceFrequency(int DeviceID, String Text){ DB.setDeviceFrequency(DeviceID, Text);}
+
+    public void setDeviceHorOff(int DeviceID, String Text){ DB.setDeviceHor(DeviceID, Text);}
+
+    public void setDeviceVerOff(int DeviceID, String Text){ DB.setDeviceVer(DeviceID, Text);}
 
 }

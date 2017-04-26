@@ -1,4 +1,4 @@
-package laci.irremote.Views;
+package laci.irremote.Views.Adapters;
 
 import android.content.Context;
 import android.support.annotation.NonNull;

@@ -1,4 +1,4 @@
-package laci.irremote.Views;
+package laci.irremote.Views.Dialogs;
 
 /**
  * Created by laci on 5.4.2017.

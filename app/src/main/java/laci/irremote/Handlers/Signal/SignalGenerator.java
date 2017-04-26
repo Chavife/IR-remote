@@ -3,6 +3,7 @@ package laci.irremote.Handlers.Signal;
 import android.media.AudioFormat;
 import android.media.AudioManager;
 import android.media.AudioTrack;
+import android.util.Log;
 
 /**
  * This file contains Handlers for generating specific
@@ -30,18 +31,38 @@ public class SignalGenerator extends SampleRateDetector{
      * Constructor for Frequency Generator
      * Frequency parameter gets an Int value of the desired Frequency to generate in Hz
      */
-    public SignalGenerator(int Frequency) {
+    public SignalGenerator(int Frequency, int horizontalOffset, int pulseOffsetPerc) {
         this.Frequency = Frequency;
+        this.HorizontalOffset = horizontalOffset;
+        this.PulseOffsetPerc = pulseOffsetPerc;
     }
 
     public void Emit(){
-        AudioTrack audioTrack = new AudioTrack(AudioManager.STREAM_MUSIC,
-                sampleRate, AudioFormat.CHANNEL_CONFIGURATION_STEREO,
-                AudioFormat.ENCODING_PCM_16BIT, numSamples*4,
-                AudioTrack.MODE_STATIC);
-        audioTrack.setStereoVolume(1f, 1f);
-        audioTrack.write(StereoGeneratedSnd, 0, StereoGeneratedSnd.length);
-        audioTrack.play();
+        try{
+            AudioTrack audioTrack = new AudioTrack(AudioManager.STREAM_MUSIC,
+                    sampleRate, AudioFormat.CHANNEL_CONFIGURATION_STEREO,
+                    AudioFormat.ENCODING_PCM_16BIT, numSamples*4,
+                    AudioTrack.MODE_STATIC);
+            audioTrack.setStereoVolume(1f, 1f);
+            audioTrack.write(StereoGeneratedSnd, 0, StereoGeneratedSnd.length);
+            audioTrack.play();
+        }catch (IllegalStateException e){
+            return;
+        }
+    }
+
+    public void Emit(byte[] StereoData){
+        if(StereoData == null) return;
+        try{
+            AudioTrack audioTrack = new AudioTrack(AudioManager.STREAM_MUSIC,
+                    sampleRate, AudioFormat.CHANNEL_CONFIGURATION_STEREO,
+                    AudioFormat.ENCODING_PCM_16BIT, StereoData.length,
+                    AudioTrack.MODE_STATIC);
+            audioTrack.write(StereoData, 0, StereoData.length);
+            audioTrack.play();
+        }catch (IllegalStateException e){
+            return;
+        }
     }
 
     public void SetHorOff(double offset){
@@ -52,10 +73,10 @@ public class SignalGenerator extends SampleRateDetector{
         PulseOffsetPerc = OffsetinPercent/100.0;
     }
 
+    public void SetFrequency(double frequency){ Frequency = frequency; }
 
 
-    public void Generate(Integer SignalinSampleLength[]){
-
+    public byte[] Generate(Integer[] SignalinSampleLength){
 
         numSamples = 0;
 
@@ -114,6 +135,7 @@ public class SignalGenerator extends SampleRateDetector{
             StereoGeneratedSnd[j++] = MonoGeneratedSnd[(i+1) - HorizontalOffset];
         }
 
+        return StereoGeneratedSnd;
     }
 
 }

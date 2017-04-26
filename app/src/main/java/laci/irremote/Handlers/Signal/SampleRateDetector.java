@@ -17,7 +17,6 @@ public class SampleRateDetector {
         for (int rate : new int[] {192000,176400,96000,88200,48000,44100,32000,22050,16000}) {  // add the rates you wish to check against
             int bufferSize = AudioRecord.getMinBufferSize(rate, AudioFormat.CHANNEL_CONFIGURATION_DEFAULT, AudioFormat.ENCODING_PCM_16BIT);
             if (bufferSize > 0) {
-                Log.i("SAMPLE", "" + bufferSize);
                 MAX_SAMPLE_RATE = rate;
                 break;
             }

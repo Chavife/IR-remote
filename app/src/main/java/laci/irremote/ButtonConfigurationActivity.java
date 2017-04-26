@@ -1,7 +1,5 @@
 package laci.irremote;
 
-import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -12,7 +10,6 @@ import android.text.TextWatcher;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
@@ -23,9 +20,9 @@ import java.util.ArrayList;
 import laci.irremote.Handlers.Database.DataStructures.RemoteButton;
 import laci.irremote.Handlers.Database.DataStructures.Signal;
 import laci.irremote.Handlers.MVC_Controller;
-import laci.irremote.Views.HSVColorPickerDialog;
-import laci.irremote.Views.SignalArrayAdapter;
-import laci.irremote.Views.SignalChoosingDialog;
+import laci.irremote.Views.Dialogs.HSVColorPickerDialog;
+import laci.irremote.Views.Adapters.SignalArrayAdapter;
+import laci.irremote.Views.Dialogs.SignalChoosingDialog;
 
 public class ButtonConfigurationActivity extends AppCompatActivity implements AdapterView.OnItemClickListener, AdapterView.OnItemLongClickListener {
 
@@ -36,7 +33,6 @@ public class ButtonConfigurationActivity extends AppCompatActivity implements Ad
     private RemoteButton btn_info;
     private ListView SignalListView;
     private MVC_Controller Controller;
-    private ArrayList<Signal> Signals;
     private SignalArrayAdapter SignalAdapter;
 
 
@@ -92,9 +88,8 @@ public class ButtonConfigurationActivity extends AppCompatActivity implements Ad
     @Override
     protected void onResume() {
         super.onResume();
-        Signals = Controller.getButtonSignals(ButtonID);
 
-        SignalAdapter = new SignalArrayAdapter(ButtonConfigurationActivity.this, R.layout.signal_list_item, Signals);
+        SignalAdapter = new SignalArrayAdapter(ButtonConfigurationActivity.this, R.layout.signal_list_item, Controller.getButtonSignals(ButtonID));
         SignalAdapter.add(new Signal(-1,"ADD SIGNAL FOR THIS BUTTON","0",0,-1,""));
         SignalListView.setAdapter(SignalAdapter);
         SignalListView.setOnItemClickListener(this);
@@ -126,7 +121,7 @@ public class ButtonConfigurationActivity extends AppCompatActivity implements Ad
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        if(position == Signals.size()-1){
+        if(SignalAdapter.getItem(position).getSignalID() == -1){
             new SignalChoosingDialog(ButtonConfigurationActivity.this, Controller.getComplementaryButtonSignals(ButtonID), new SignalChoosingDialog.OnSignalsSelectedListener() {
                 @Override
                 public void SignalsSelected(ArrayList<Signal> selectedSignals) {
@@ -136,22 +131,22 @@ public class ButtonConfigurationActivity extends AppCompatActivity implements Ad
             });
         }else{
             Intent signal = new Intent(ButtonConfigurationActivity.this, SignalDecodingActivity.class);
-            signal.putExtra("ID", Signals.get(position).getSignalID());
+            signal.putExtra("ID", SignalAdapter.getItem(position).getSignalID());
             startActivity(signal);
         }
     }
 
     @Override
     public boolean onItemLongClick(AdapterView<?> parent, View view, final int position, long id) {
-        if(position != Signals.size()-1){
+        if(SignalAdapter.getItem(position).getSignalID() != -1){
             PopupMenu popup = new PopupMenu(ButtonConfigurationActivity.this, view);
-            popup.getMenuInflater().inflate(R.menu.popup_signal_item, popup.getMenu());
+            popup.getMenuInflater().inflate(R.menu.popup_item, popup.getMenu());
 
             popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
                 public boolean onMenuItemClick(MenuItem item) {
                     switch (item.getItemId()) {
                         case R.id.remove_signal:
-                            Controller.removeSignalFromButton(ButtonID, Signals.get(position).getSignalID());
+                            Controller.removeSignalFromButton(ButtonID, SignalAdapter.getItem(position).getSignalID());
                             UpdateList();
                             return true;
                     }
@@ -165,8 +160,7 @@ public class ButtonConfigurationActivity extends AppCompatActivity implements Ad
     }
 
     public void UpdateList(){
-        Signals = Controller.getButtonSignals(ButtonID);
-        SignalAdapter.updateSignals(Signals);
+        SignalAdapter.updateSignals(Controller.getButtonSignals(ButtonID));
         SignalAdapter.add(new Signal(-1,"ADD SIGNAL FOR THIS BUTTON","0",0,-1,""));
     }
 }

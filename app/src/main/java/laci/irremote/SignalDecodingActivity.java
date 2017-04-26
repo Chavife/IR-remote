@@ -7,15 +7,18 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import java.util.ArrayList;
 
+import laci.irremote.Handlers.Database.DataStructures.DeviceSetting;
 import laci.irremote.Handlers.Database.DataStructures.Signal;
 import laci.irremote.Handlers.MVC_Controller;
 import laci.irremote.Handlers.Signal.SignalDecoder;
@@ -29,7 +32,9 @@ public class SignalDecodingActivity extends AppCompatActivity {
     private Button record;
     private EditText NameEdit;
     private EditText Repeat;
+    private Spinner Setting;
     private int SignalID;
+    private ArrayList<DeviceSetting> Devices;
     private Signal signalInfo;
 
     private MVC_Controller Controller;
@@ -51,6 +56,7 @@ public class SignalDecodingActivity extends AppCompatActivity {
         Controller = new MVC_Controller(this);
         NameEdit = (EditText) findViewById(R.id.name_edit);
         Repeat = (EditText) findViewById(R.id.repeat_edit);
+        Setting = (Spinner) findViewById(R.id.device_spinner);
 
         final Bundle SignalInfo = getIntent().getExtras();
         if(SignalInfo == null) return;
@@ -63,6 +69,39 @@ public class SignalDecodingActivity extends AppCompatActivity {
         Signal = signalInfo.getSignal();
         NameEdit.setText(signalInfo.getName());
         Repeat.setText(signalInfo.getRepeat()+"");
+
+
+        Devices = Controller.getAllDevices();
+        ArrayList<String> Settings = new ArrayList<>();
+        int current_device = 0;
+        for(int i = 0 ; i < Devices.size(); i++){
+            if(signalInfo.getSetting_id() == Devices.get(i).getDeviceID()) current_device = i;
+            Settings.add(Devices.get(i).getName());
+        }
+
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(
+                this, android.R.layout.simple_spinner_item, Settings);
+
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        Setting.setAdapter(adapter);
+
+        Setting.setSelection(current_device);
+
+
+
+        Setting.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                Controller.setSignalsDevice(SignalID, Devices.get(position).getDeviceID());
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+
+
 
         NameEdit.addTextChangedListener(new TextWatcher() {
             @Override
@@ -120,7 +159,7 @@ public class SignalDecodingActivity extends AppCompatActivity {
                 signal_graph.invalidate();
                 Controller.setSignalSignal(SignalID,Signal);
             }else{
-                Toast.makeText(SignalDecodingActivity.this, "Recording Unsuccessful", Toast.LENGTH_LONG).show();
+                Toast.makeText(SignalDecodingActivity.this, "Recording Unsuccessful", Toast.LENGTH_SHORT).show();
             }
 
             record.setText("RECORD");

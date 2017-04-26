@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.PopupMenu;
+import android.util.Log;
 import android.util.Pair;
 import android.view.Display;
 import android.view.MenuItem;
@@ -21,6 +22,7 @@ import java.util.ResourceBundle;
 
 import laci.irremote.Handlers.Database.DataStructures.RemoteButton;
 import laci.irremote.Handlers.MVC_Controller;
+import laci.irremote.Handlers.Signal.SignalComposer;
 
 
 /**
@@ -43,6 +45,8 @@ public class RemoteControllerActivity extends AppCompatActivity {
     private int rows = 0;
     private int columns = 0;
     private boolean EDITING_FLAG = false;
+    private SignalComposer SC;
+    Thread Play = new Thread();
 
     /**Here We initialize every Object we are going to need*/
     @Override
@@ -63,6 +67,7 @@ public class RemoteControllerActivity extends AppCompatActivity {
 
         Controller = new MVC_Controller(this);
         Controller.DBinit(width, height); //This Method initialize DB only at the first startup of the application
+        SC = new SignalComposer(this);
 
         rows = Controller.getRows();
         columns = Controller.getColumns();
@@ -99,7 +104,7 @@ public class RemoteControllerActivity extends AppCompatActivity {
 
                         btn.setOnTouchListener(new View.OnTouchListener() {
                             @Override
-                            public boolean onTouch(View v, MotionEvent event) {
+                            public boolean onTouch(final View v, MotionEvent event) {
                                 if(event.getAction() == MotionEvent.ACTION_DOWN){
                                     if (EDITING_FLAG) {
                                         Intent BtnConfig = new Intent(RemoteControllerActivity.this, ButtonConfigurationActivity.class);
@@ -107,10 +112,26 @@ public class RemoteControllerActivity extends AppCompatActivity {
                                         startActivity(BtnConfig);
                                     } else if(!EDITING_FLAG){
                                         v.setAlpha((float) 0.5);
-                                        //TODO GENERATE METHOD
+                                        SC.Compose(Controller.getButtonSignals(v.getId()));
+                                        if(Play != null && !Play.isAlive()){
+                                            Play = new Thread(new Runnable() {
+                                                @Override
+                                                public void run() {
+                                                    try{
+                                                        for(int i = 0; i < 50; i++){
+                                                            SC.Play();
+                                                            Thread.sleep(SC.getLengthInms());
+                                                        }
+                                                    }catch (InterruptedException e){
+                                                        return;
+                                                    }
+                                                }
+                                            });
+                                            Play.start();
+                                        }
                                     }
-                                }
-                                if(event.getAction() == MotionEvent.ACTION_UP){
+                                }else if(event.getAction() == MotionEvent.ACTION_UP){
+                                    if(Play != null && Play.isAlive()) Play.interrupt();
                                     v.setAlpha(1);
                                 }
                                 return true;
@@ -197,6 +218,8 @@ public class RemoteControllerActivity extends AppCompatActivity {
                                 }
                                 return true;
                             case R.id.manage_settings:
+                                Intent devices = new Intent(RemoteControllerActivity.this, DevicesActivity.class);
+                                startActivity(devices);
                                 return true;
                             case R.id.manage_signals:
                                 Intent signals = new Intent(RemoteControllerActivity.this, SignalsActivity.class);

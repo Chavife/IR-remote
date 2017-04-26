@@ -12,6 +12,7 @@ import android.util.Pair;
 
 import java.util.ArrayList;
 
+import laci.irremote.Handlers.Database.DataStructures.DeviceSetting;
 import laci.irremote.Handlers.Database.DataStructures.RemoteButton;
 import laci.irremote.Handlers.Database.DataStructures.Signal;
 
@@ -361,6 +362,30 @@ public class DBHandler extends SQLiteOpenHelper {
         return Signals;
     }
 
+    public ArrayList<Signal> getSignalsForSevice(int DeviceID){
+        SQLiteDatabase db = getReadableDatabase();
+        String checkQuery = "SELECT *" +
+                " FROM " + TABLE_SIGNALS + " AS si, " + TABLE_SETTINGS + " AS se" +
+                " WHERE si." + SIGNAL_SETTING + " = se." + SETTING_ID +
+                " AND si." + SIGNAL_SETTING + "=" + DeviceID + ";";
+        Cursor c = db.rawQuery(checkQuery,null);
+
+        ArrayList<Signal> Signals = new ArrayList<>();
+
+        c.moveToFirst();
+        while(!c.isAfterLast()){
+            Signals.add(new Signal(c.getInt(c.getColumnIndex(SIGNAL_ID)),
+                    c.getString(c.getColumnIndex(SIGNAL_NAME)),
+                    c.getString(c.getColumnIndex(SIGNAL_SIGNAL)),
+                    c.getInt(c.getColumnIndex(SIGNAL_REPEAT)),
+                    c.getInt(c.getColumnIndex(SIGNAL_SETTING)),
+                    c.getString(c.getColumnIndex(SETTING_NAME))));
+            c.moveToNext();
+        }
+
+        return Signals;
+    }
+
     public Signal getSignal(int SignalID){
         SQLiteDatabase db = getReadableDatabase();
         String checkQuery = "SELECT * FROM " + TABLE_SIGNALS + " AS si, " + TABLE_SETTINGS + " AS se" +
@@ -402,12 +427,136 @@ public class DBHandler extends SQLiteOpenHelper {
     }
 
 
-    public void setSignalSignal(int ID, String Name){
+    public void setSignalSignal(int ID, String Signal){
         SQLiteDatabase sqLiteDatabase = getWritableDatabase();
         SQLiteStatement stmt = sqLiteDatabase.compileStatement("UPDATE " + TABLE_SIGNALS +
                 " SET " + SIGNAL_SIGNAL + " = ?" +
                 " WHERE " + SIGNAL_ID + " = " + ID + ";");
+        stmt.bindString(1, Signal);
+        stmt.execute();
+    }
+
+    public void setSignalsDevice(int SignalID, int DeviceID){
+        SQLiteDatabase sqLiteDatabase = getWritableDatabase();
+        SQLiteStatement stmt = sqLiteDatabase.compileStatement("UPDATE " + TABLE_SIGNALS +
+                " SET " + SIGNAL_SETTING + " = ?" +
+                " WHERE " + SIGNAL_ID + " = " + SignalID + ";");
+        stmt.bindString(1, DeviceID + "");
+        stmt.execute();
+    }
+
+    public int createNewDevice(){
+        SQLiteDatabase db = getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+        values.put(SETTING_NAME, "");
+        values.put(SETTING_FREQUENCY, 38000);
+        values.put(SETTING_HOR_OFF, 90); //3 is most common so we make it as default value
+        values.put(SETTING_VER_OFF, 0);
+        db.insert(TABLE_SETTINGS,null,values);
+
+        String Query = "SELECT MAX(" + SETTING_ID + ")"+
+                " FROM " + TABLE_SETTINGS + ";";
+
+        Cursor c = db.rawQuery(Query,null);
+
+        c.moveToFirst();
+        int ID = -1;
+        if(!c.isAfterLast()){
+            ID = c.getInt(c.getColumnIndex("MAX(" + SETTING_ID + ")"));
+        }
+
+        return ID;
+    }
+
+    public ArrayList<DeviceSetting> getAllDevices(){
+        SQLiteDatabase db = getReadableDatabase();
+        String checkQuery = "SELECT *" +
+                " FROM " + TABLE_SETTINGS + ";";
+        Cursor c = db.rawQuery(checkQuery,null);
+
+        ArrayList<DeviceSetting> Devices = new ArrayList<>();
+
+        c.moveToFirst();
+        while(!c.isAfterLast()){
+            Devices.add(new DeviceSetting(c.getInt(c.getColumnIndex(SETTING_ID)),
+                    c.getString(c.getColumnIndex(SETTING_NAME)),
+                    c.getInt(c.getColumnIndex(SETTING_FREQUENCY)),
+                    c.getInt(c.getColumnIndex(SETTING_HOR_OFF)),
+                    c.getInt(c.getColumnIndex(SETTING_VER_OFF))));
+
+            c.moveToNext();
+        }
+
+        return Devices;
+    }
+
+    public DeviceSetting getDevice(int DeviceID){
+        SQLiteDatabase db = getReadableDatabase();
+        String checkQuery = "SELECT *" +
+                " FROM " + TABLE_SETTINGS +
+                " WHERE " + SETTING_ID + "=" + DeviceID + ";";
+        Cursor c = db.rawQuery(checkQuery,null);
+
+        DeviceSetting d = null;
+
+        c.moveToFirst();
+        if(!c.isAfterLast()){
+            d = new DeviceSetting(c.getInt(c.getColumnIndex(SETTING_ID)),
+                    c.getString(c.getColumnIndex(SETTING_NAME)),
+                    c.getInt(c.getColumnIndex(SETTING_FREQUENCY)),
+                    c.getInt(c.getColumnIndex(SETTING_HOR_OFF)),
+                    c.getInt(c.getColumnIndex(SETTING_VER_OFF)));
+        }
+
+        return d;
+    }
+
+    public void setDeviceName(int DeviceID, String Name){
+        SQLiteDatabase sqLiteDatabase = getWritableDatabase();
+        SQLiteStatement stmt = sqLiteDatabase.compileStatement("UPDATE " + TABLE_SETTINGS +
+                " SET " + SETTING_NAME + " = ?" +
+                " WHERE " + SETTING_ID + " = " + DeviceID + ";");
         stmt.bindString(1, Name);
         stmt.execute();
+    }
+
+    public void setDeviceFrequency(int DeviceID, String Frequency){
+        SQLiteDatabase sqLiteDatabase = getWritableDatabase();
+        SQLiteStatement stmt = sqLiteDatabase.compileStatement("UPDATE " + TABLE_SETTINGS +
+                " SET " + SETTING_FREQUENCY + " = ?" +
+                " WHERE " + SETTING_ID + " = " + DeviceID + ";");
+        stmt.bindString(1, Frequency);
+        stmt.execute();
+    }
+
+    public void setDeviceHor(int DeviceID, String Hor_off){
+        SQLiteDatabase sqLiteDatabase = getWritableDatabase();
+        SQLiteStatement stmt = sqLiteDatabase.compileStatement("UPDATE " + TABLE_SETTINGS +
+                " SET " + SETTING_HOR_OFF + " = ?" +
+                " WHERE " + SETTING_ID + " = " + DeviceID + ";");
+        stmt.bindString(1, Hor_off);
+        stmt.execute();
+    }
+
+    public void setDeviceVer(int DeviceID, String Ver_off){
+        SQLiteDatabase sqLiteDatabase = getWritableDatabase();
+        SQLiteStatement stmt = sqLiteDatabase.compileStatement("UPDATE " + TABLE_SETTINGS +
+                " SET " + SETTING_VER_OFF + " = ?" +
+                " WHERE " + SETTING_ID + " = " + DeviceID + ";");
+        stmt.bindString(1, Ver_off);
+        stmt.execute();
+    }
+
+    public void removeDevice(int DeviceID){
+        SQLiteDatabase sqLiteDatabase = getWritableDatabase();
+        SQLiteStatement stmt = sqLiteDatabase.compileStatement("UPDATE " + TABLE_SIGNALS +
+                " SET " + SIGNAL_SETTING + " = ?" +
+                " WHERE " + SIGNAL_SETTING + " = " + DeviceID + ";");
+        stmt.bindString(1, "1");
+        stmt.execute();
+        String query2 = "DELETE FROM " + TABLE_SETTINGS +
+                " WHERE " + SETTING_ID + "=" + DeviceID + ";";
+        sqLiteDatabase.execSQL(query2);
     }
 }

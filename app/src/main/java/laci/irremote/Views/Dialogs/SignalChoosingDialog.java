@@ -1,4 +1,4 @@
-package laci.irremote.Views;
+package laci.irremote.Views.Dialogs;
 
 import android.app.AlertDialog;
 import android.content.Context;
