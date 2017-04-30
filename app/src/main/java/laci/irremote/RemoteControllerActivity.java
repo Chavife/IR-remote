@@ -1,10 +1,14 @@
 package laci.irremote;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.Point;
 import android.graphics.PorterDuff;
 import android.os.Bundle;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.PopupMenu;
@@ -72,6 +76,37 @@ public class RemoteControllerActivity extends AppCompatActivity {
         rows = Controller.getRows();
         columns = Controller.getColumns();
 
+        requestRecordAudioPermission();
+
+    }
+
+    private void requestRecordAudioPermission() {
+
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
+
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.RECORD_AUDIO)) {
+
+            } else {
+
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.RECORD_AUDIO}, 1);
+            }
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case 1: {
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    Log.d("Activity", "Granted!");
+
+                } else {
+                    Log.d("Activity", "Denied!");
+                    finish();
+                }
+                return;
+            }
+        }
     }
 
     /**On Resume method is always called even if the Activity is not alive*/
@@ -224,6 +259,10 @@ public class RemoteControllerActivity extends AppCompatActivity {
                             case R.id.manage_signals:
                                 Intent signals = new Intent(RemoteControllerActivity.this, SignalsActivity.class);
                                 startActivity(signals);
+                                return true;
+                            case R.id.global_settings:
+                                Intent glob_set = new Intent(RemoteControllerActivity.this, GlobalSettingActivity.class);
+                                startActivity(glob_set);
                                 return true;
                         }
                         return false;

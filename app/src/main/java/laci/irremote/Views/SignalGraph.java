@@ -34,7 +34,6 @@ public class SignalGraph extends View {
         for(int l : signal){
             signalLength += Math.abs(l); //100%
         }
-        //draw(Canvas);
     }
 
     @Override
@@ -45,7 +44,7 @@ public class SignalGraph extends View {
         height = canvas.getHeight();
         float topThreshold = (float) (height - (heightMargin/100.0*height));
         float bottomThreshold = (float) (heightMargin/100.0*height);
-        int current_x = 0;
+        double current_x = 0;
 
         Paint paint = new Paint();
         Path path = new Path();
@@ -53,18 +52,18 @@ public class SignalGraph extends View {
         paint.setColor(Color.TRANSPARENT);
         canvas.drawPaint(paint);
 
-        path.moveTo(current_x, bottomThreshold);
+        path.moveTo((float) current_x, bottomThreshold);
         for (int i = 0; i < Signal.length; i++) {
-            int x_step = (int) Math.round((Math.abs(Signal[i])/(double)signalLength) * width);
+            double x_step = (Math.abs(Signal[i])/(double)signalLength) * width;
             if(Signal[i] < 0){
-                path.lineTo(current_x, topThreshold);
+                path.lineTo((float) current_x, topThreshold);
                 current_x += x_step;
-                path.lineTo(current_x, topThreshold);
+                path.lineTo((float) current_x, topThreshold);
 
             }else{
-                path.lineTo(current_x, bottomThreshold);
+                path.lineTo((float) current_x, bottomThreshold);
                 current_x += x_step;
-                path.lineTo(current_x, bottomThreshold);
+                path.lineTo((float) current_x, bottomThreshold);
             }
         }
 

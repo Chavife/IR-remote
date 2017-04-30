@@ -1,6 +1,7 @@
 package laci.irremote.Handlers.Signal;
 
 import android.content.Context;
+import android.util.Log;
 
 import java.util.ArrayList;
 
@@ -81,6 +82,13 @@ public class SignalComposer extends SampleRateDetector{
             StereoStream = null;
             return;
         }
+        TotalLength = 0;
+
+        for(int i = 0; i < signal.getSignal().length; i++){
+            TotalLength += Math.abs(signal.getSignal()[i]) * signal.getRepeat();
+        }
+        TotalLength += signal.getRepeat() * Math.abs(signalPause);
+
         Integer[] Sample;
 
         Sample = new Integer[(signal.getSignal().length +1) * signal.getRepeat()];

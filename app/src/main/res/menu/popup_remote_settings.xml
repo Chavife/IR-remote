@@ -3,5 +3,6 @@
     <item android:id="@+id/manage_remote_btns"  android:title="Manage Buttons"></item>
     <item android:id="@+id/manage_settings"  android:title="Devices"></item>
     <item android:id="@+id/manage_signals"  android:title="Signals"></item>
+    <item android:id="@+id/global_settings"  android:title="Global Settings"></item>
 
 </menu>

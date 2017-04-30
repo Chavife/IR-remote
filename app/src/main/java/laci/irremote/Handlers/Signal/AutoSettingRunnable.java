@@ -2,7 +2,6 @@ package laci.irremote.Handlers.Signal;
 
 import android.app.Activity;
 import android.graphics.Color;
-import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -15,7 +14,7 @@ import laci.irremote.Handlers.Database.DataStructures.Signal;
 
 public class AutoSettingRunnable implements Runnable{
 
-    private SignalComposer SG;
+    private SignalComposer SC;
 
     private TextView FrequencyText;
     private TextView HorText;
@@ -53,7 +52,7 @@ public class AutoSettingRunnable implements Runnable{
         Sig = sig;
         Activity = activity;
 
-        SG = new SignalComposer(activity.getApplicationContext());
+        SC = new SignalComposer(activity.getApplicationContext());
     }
 
     @Override
@@ -88,11 +87,11 @@ public class AutoSettingRunnable implements Runnable{
                                     Btn.setText("FREQUENCY SET");
                                 }
                             });
-                            Thread.sleep(500);
+                            Thread.sleep(1500);
                             break frequencyLoop;
                         }
-                        SG.Compose(Sig,freq,horoff,veroff);
-                        SG.Play();
+                        SC.Compose(Sig,freq,horoff,veroff);
+                        SC.Play();
                         Activity.runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
@@ -105,7 +104,7 @@ public class AutoSettingRunnable implements Runnable{
                                 }
                             }
                         });
-                        Thread.sleep(300);
+                        Thread.sleep(SC.getLengthInms() + 300);
                     }
                 }
             }
@@ -132,7 +131,7 @@ public class AutoSettingRunnable implements Runnable{
                                 Btn.setText("HOR VER OFFSET SET");
                             }
                         });
-                        Thread.sleep(500);
+                        Thread.sleep(1500);
                         break horveroffLoop;
                     }
 
@@ -151,10 +150,12 @@ public class AutoSettingRunnable implements Runnable{
                         }
                     });
 
-                    SG.Compose(Sig,freq,h,v);
-                    SG.Play();
+                    SC.Compose(Sig,freq,h,v);
+                    SC.Play();
 
-                    Thread.sleep(1000);
+
+
+                    Thread.sleep(SC.getLengthInms() + 1000);
                 }
             }
             Activity.runOnUiThread(new Runnable() {

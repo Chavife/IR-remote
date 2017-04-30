@@ -10,6 +10,7 @@ import laci.irremote.Handlers.Database.DBHandler;
 import laci.irremote.Handlers.Database.DataStructures.DeviceSetting;
 import laci.irremote.Handlers.Database.DataStructures.RemoteButton;
 import laci.irremote.Handlers.Database.DataStructures.Signal;
+import laci.irremote.Handlers.Database.SPHandler;
 
 /**
  * Controller for the MVC (Model-View-Controller) Pattern
@@ -18,11 +19,13 @@ import laci.irremote.Handlers.Database.DataStructures.Signal;
 public class MVC_Controller extends Application {
 
     DBHandler DB = null;
+    SPHandler SP = null;
     int columns = 5;
     int rows = 0;
 
     public MVC_Controller(Context c) {
         DB = new DBHandler(c,null);
+        SP = new SPHandler(c);
     }
 
     public void DBinit(int screen_width, int screen_height){
@@ -114,4 +117,16 @@ public class MVC_Controller extends Application {
 
     public void setDeviceVerOff(int DeviceID, String Text){ DB.setDeviceVer(DeviceID, Text);}
 
+
+    public void setDecodeUpperThreshold(double threshold){ SP.setUpperThreshold(threshold);}
+
+    public double getDecodeUpperThreshold(){ return SP.getUpperThreshold();}
+
+    public void setDecodeBottomThreshold(double threshold){ SP.setBottomThreshold(threshold);}
+
+    public double getDecodeBottomThreshold(){ return SP.getBottomThreshold();}
+
+    public void setDecodeMinLength(int minLength){ SP.setMinLength(minLength);}
+
+    public int getDecodeMinLength(){ return SP.getMinLength(); }
 }

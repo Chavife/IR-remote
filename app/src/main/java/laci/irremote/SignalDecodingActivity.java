@@ -126,7 +126,7 @@ public class SignalDecodingActivity extends AppCompatActivity {
         });
 
         SR = new SignalRecorder();
-        signalDecoder = new SignalDecoder();
+        signalDecoder = new SignalDecoder(Controller.getDecodeUpperThreshold(), Controller.getDecodeBottomThreshold(), Controller.getDecodeMinLength());
         mAudioManager = (AudioManager)getSystemService(Context.AUDIO_SERVICE);
         mAudioManager.setWiredHeadsetOn(true);
 
@@ -135,7 +135,6 @@ public class SignalDecodingActivity extends AppCompatActivity {
         signal_graph = new SignalGraph(this, Signal);
 
         SignalGraphHolder.addView(signal_graph);
-
 
     }
 
