@@ -9,7 +9,7 @@ import android.util.Log;
 import android.view.View;
 
 /**
- * Created by laci on 10.4.2017.
+ * View for plotting the Decoded signal.
  */
 
 public class SignalGraph extends View {

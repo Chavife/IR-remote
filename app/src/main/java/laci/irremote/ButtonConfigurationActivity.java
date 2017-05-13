@@ -14,6 +14,7 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import java.util.ArrayList;
 
@@ -27,6 +28,7 @@ import laci.irremote.Views.Dialogs.SignalChoosingDialog;
 public class ButtonConfigurationActivity extends AppCompatActivity implements AdapterView.OnItemClickListener, AdapterView.OnItemLongClickListener {
 
     private EditText NameEdit;
+    private TextView InfoText;
     private Button ColorPick;
     private CheckBox EnabledChkBox;
     private int ButtonID;
@@ -52,6 +54,7 @@ public class ButtonConfigurationActivity extends AppCompatActivity implements Ad
         ColorPick = (Button) findViewById(R.id.color_pick_btn);
         EnabledChkBox = (CheckBox) findViewById(R.id.enabled_chkbox);
         SignalListView = (ListView) findViewById(R.id.signals_list);
+        InfoText = (TextView) findViewById(R.id.info_text);
 
 
         final Bundle ButtonInfo = getIntent().getExtras();
@@ -61,6 +64,7 @@ public class ButtonConfigurationActivity extends AppCompatActivity implements Ad
         btn_info = Controller.getButtonInfo(ButtonID);
 
         NameEdit.setText(btn_info.getName());
+        InfoText.setText("BUTTON CONFIGURATION");
 
         NameEdit.addTextChangedListener(new TextWatcher() {
             @Override

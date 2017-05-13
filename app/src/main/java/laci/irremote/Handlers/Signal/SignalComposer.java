@@ -10,22 +10,25 @@ import laci.irremote.Handlers.Database.DataStructures.DeviceSetting;
 import laci.irremote.Handlers.Database.DataStructures.Signal;
 
 /**
- * Created by laci on 23.4.2017.
+ * This class Hanfles the composition of the repetition of signal and also the merge
+ * of more signals which can depend on different settings
  */
 
 public class SignalComposer extends SampleRateDetector{
-    private SignalGenerator SG;
-    private int signalPause = -(int) (0.025 * DEVICE_MAX_SAMPLE_RATE);
+    private SignalGenerator SG; /**This Class uses the generator, for be able to generate the composed signal*/
+    private int signalPause = -(int) (0.025 * DEVICE_MAX_SAMPLE_RATE); /**This is the pause between the generated signals*/
 
-    private DBHandler DB;
+    private DBHandler DB; /**reference to the database for access of signals and device settings*/
     byte[] StereoStream;
     int TotalLength = 0;
 
+    /**Constructor*/
     public SignalComposer(Context c) {
         SG = new SignalGenerator(38000/2, 90, 0);
         DB = new DBHandler(c,null);
     }
 
+    /**This method composes all the signals into one sound track for be able to further play*/
     public void Compose(ArrayList<Signal> Signals){
         if(Signals.size() == 0){
             StereoStream = null;
@@ -72,11 +75,13 @@ public class SignalComposer extends SampleRateDetector{
         }
     }
 
+    /**Length of the Composed track in milliseconds*/
     public int getLengthInms(){
         return (int) Math.floor((TotalLength/(DEVICE_MAX_SAMPLE_RATE * 1.0)) * 1000);
     }
 
-
+    /**This method composes a single Signal with an given settings this method exists due
+     * to the semi-automatic setting where we need to try different setting */
     public void Compose(Signal signal, int freq, int hor, int pulse){
         if(signal == null){
             StereoStream = null;
@@ -109,6 +114,7 @@ public class SignalComposer extends SampleRateDetector{
         StereoStream = SG.Generate(Sample);
     }
 
+    /**This method Plays the Composed Signal of this class*/
     public void Play(){
         if(StereoStream == null) return;
         SG.Emit(StereoStream);

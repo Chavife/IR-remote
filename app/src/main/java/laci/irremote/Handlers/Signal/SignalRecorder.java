@@ -1,24 +1,20 @@
 package laci.irremote.Handlers.Signal;
 
 
-import android.media.AudioDeviceInfo;
 import android.media.AudioFormat;
 import android.media.AudioManager;
 import android.media.AudioRecord;
 import android.media.MediaRecorder;
 import android.os.Build;
-import android.util.Log;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
-
-import laci.irremote.Handlers.Signal.SampleRateDetector;
 
 import static junit.framework.Assert.assertNotNull;
 
 
 /**
- * Created by laci on 17.3.2017.
+ * This Class handles all the recording of an Signal and if wanted returns the raw recorded data
+ * for further handling. Usually the SignalDecoder class gets it.
  */
 
 public class SignalRecorder extends SampleRateDetector {
@@ -48,47 +44,36 @@ public class SignalRecorder extends SampleRateDetector {
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
 
-
             am.setBluetoothScoOn(false);
             am.setSpeakerphoneOn(false);
             am.setMicrophoneMute(false);
             am.setWiredHeadsetOn(true);
 
-            AudioDeviceInfo[] device = am.getDevices(am.GET_DEVICES_INPUTS);
-
-
-            Log.i("devices count" , device.length + "");
-
-            for(int i = 0 ; i < device.length; i++){
-                String shit = device[i].getId() + "";
-                Log.i("DEVICE", " at " + i + "  this device: " + shit);
-            }
-
-           // recorder.setPreferredDevice(device[4]);
         }
 
         recorder.startRecording();
         isRecording = true;
         recordingThread = new Thread(new Runnable() {
             public void run() {
-                writeAudioDataToFile();
+                writeAudioData();
             }
         }, "AudioRecorder Thread");
         recordingThread.start();
     }
 
-    private void writeAudioDataToFile() {
+    /**Writes the recording array to the raw datastructure of this class */
+    private void writeAudioData() {
 
         short sData[] = new short[BufferElements2Rec];
 
         while (isRecording) {
             recorder.read(sData, 0, BufferElements2Rec);
-
             for(short value : sData) Data.add(value);
         }
 
     }
 
+    /**Stops the recording thread*/
     public void stopRecording() {
         // stops the recording activity
         if (null != recorder) {
@@ -101,6 +86,7 @@ public class SignalRecorder extends SampleRateDetector {
 
     }
 
+    /**Returns the raw recorded Data*/
     public ArrayList<Short> getRecorderData(){
         return Data;
     }

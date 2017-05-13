@@ -4,8 +4,8 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.util.Log;
 
-/**
- * Created by laci on 29.4.2017.
+/** This Class handles all the communication the the Shared Preferences of the Android device
+ * other variables of storage should be programed here.
  */
 
 public class SPHandler {
@@ -13,6 +13,7 @@ public class SPHandler {
     SharedPreferences SP;
     SharedPreferences.Editor editor;
 
+    /**Constructor*/
     public SPHandler(Context context) {
         SP = context.getSharedPreferences("Settings", context.MODE_PRIVATE);
         editor = SP.edit();

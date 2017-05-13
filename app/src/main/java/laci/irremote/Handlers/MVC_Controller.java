@@ -2,7 +2,6 @@ package laci.irremote.Handlers;
 
 import android.app.Application;
 import android.content.Context;
-import android.widget.Button;
 
 import java.util.ArrayList;
 
@@ -14,6 +13,9 @@ import laci.irremote.Handlers.Database.SPHandler;
 
 /**
  * Controller for the MVC (Model-View-Controller) Pattern
+ *
+ * Handles the communication with the DB and SP handlers between the Activities
+ * and also some minor calculations.
  */
 
 public class MVC_Controller extends Application {
@@ -57,7 +59,7 @@ public class MVC_Controller extends Application {
 
     public ArrayList<Signal> getAllSignals(){return DB.getAllSignals();}
 
-    public ArrayList<Signal> getSignalsForDevice(int DeviceID){return DB.getSignalsForSevice(DeviceID);}
+    public ArrayList<Signal> getSignalsForDevice(int DeviceID){return DB.getSignalsForDevice(DeviceID);}
 
     public Signal getSignal(int SignalID){ return DB.getSignal(SignalID);}
 

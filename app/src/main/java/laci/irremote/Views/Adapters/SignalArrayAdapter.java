@@ -15,7 +15,7 @@ import laci.irremote.Handlers.Database.DataStructures.Signal;
 import laci.irremote.R;
 
 /**
- * Created by laci on 21.4.2017.
+ * Adapter handling the ListView of the signals
  */
 
 public class SignalArrayAdapter extends ArrayAdapter<Signal> {

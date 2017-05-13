@@ -1,17 +1,20 @@
 package laci.irremote.Handlers.Database.DataStructures;
 
+
 /**
- * Created by laci on 21.4.2017.
+ * This Class is a DataStructure of an Signal where we can easily store all the variables
+ * from the database which we could need for later use
  */
 
 public class Signal {
-    private int SignalID;
-    private String Name;
-    private Integer[] Signal;
-    private int Repeat;
-    private int setting_id;
-    private String setting_name;
+    private int SignalID; /**ID of the Signal*/
+    private String Name; /**Name of the signal for better recognition*/
+    private Integer[] Signal; /**Data structure of the signal*/
+    private int Repeat; /**Repetition of the signal at generating*/
+    private int setting_id; /**ID of the used device*/
+    private String setting_name; /**Name of the Device for ease of use*/
 
+    /**Constructor*/
     public Signal(int SignalID, String name, String signal, int repeat, int setting_id, String setting_name) {
         this.SignalID = SignalID;
         Name = name;
@@ -21,6 +24,7 @@ public class Signal {
         this.setting_name = setting_name;
     }
 
+    /**Method which translates the String from the DB to an array of integers*/
     public Integer[] ParseSignalFromString(String signal){
         String[] values = signal.split(" ");
         Integer[] parsedsignal = new Integer[values.length];
@@ -31,6 +35,7 @@ public class Signal {
         return parsedsignal;
     }
 
+    /*Getters*/
     public String getName() {
         return Name;
     }
@@ -51,6 +56,8 @@ public class Signal {
 
     public int getRepeat() { return Repeat; }
 
+
+    /*Setters*/
     public void setName(String name) {
         Name = name;
     }

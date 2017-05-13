@@ -9,13 +9,15 @@ import android.widget.TextView;
 import laci.irremote.Handlers.Database.DataStructures.Signal;
 
 /**
- * Created by laci on 26.4.2017.
+ * This Class is the Runnable for semi-automatic setting o an device in this application
+ * This handles all the stuff which happens during the setting in an different thread.
  */
 
 public class AutoSettingRunnable implements Runnable{
 
     private SignalComposer SC;
 
+    /**All the Views for visual representation*/
     private TextView FrequencyText;
     private TextView HorText;
     private TextView VerText;
@@ -31,6 +33,7 @@ public class AutoSettingRunnable implements Runnable{
 
     private Activity Activity;
 
+    /**Constructor*/
     public AutoSettingRunnable(TextView frequencyText,
                                TextView horText,
                                TextView verText,
@@ -164,7 +167,7 @@ public class AutoSettingRunnable implements Runnable{
                     FrequencyEdit.setTextColor(Color.DKGRAY);
                     HorEdit.setTextColor(Color.DKGRAY);
                     VerEdit.setTextColor(Color.DKGRAY);
-                    Btn.setText("AUTOMATIC SETTING");
+                    Btn.setText("SEMI-AUTOMATIC SETTING");
                     InfoText.setText("");
                 }
             });

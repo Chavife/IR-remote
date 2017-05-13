@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import laci.irremote.Handlers.Database.DataStructures.Signal;
 
 /**
- * Created by laci on 25.4.2017.
+ * Dialog for choosing signal at semi-automatic settings
  */
 
 public class SignalForDeviceChoosingDialog extends AlertDialog.Builder{

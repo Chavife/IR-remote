@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import laci.irremote.Handlers.Database.DataStructures.Signal;
 
 /**
- * Created by laci on 21.4.2017.
+ * Dialog for choosing signals for the button
  */
 
 public class SignalChoosingDialog extends AlertDialog.Builder{

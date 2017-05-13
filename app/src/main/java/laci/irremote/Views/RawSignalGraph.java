@@ -12,7 +12,7 @@ import android.widget.ArrayAdapter;
 import java.util.ArrayList;
 
 /**
- * Created by laci on 28.4.2017.
+ * View for plotting the Raw signal of the recorded signal
  */
 
 public class RawSignalGraph extends View {

@@ -15,7 +15,7 @@ import laci.irremote.Handlers.Database.DataStructures.DeviceSetting;
 import laci.irremote.R;
 
 /**
- * Created by laci on 23.4.2017.
+ * Adapter handling the ListView of the devices
  */
 
 public class DeviceArrayAdapter extends ArrayAdapter<DeviceSetting>{

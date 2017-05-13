@@ -131,8 +131,6 @@ public class GlobalSettingActivity extends AppCompatActivity {
     public void onBackBtnClick(View view){ finish(); }
 
 
-
-    //TODO CONTROLLER
     public void RecordSignal(View v) {
         if(record.getText().equals("RECORD")){
             SR.startRecording(mAudioManager);

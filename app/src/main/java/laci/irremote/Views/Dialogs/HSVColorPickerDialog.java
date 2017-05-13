@@ -1,7 +1,7 @@
 package laci.irremote.Views.Dialogs;
 
 /**
- * Created by laci on 5.4.2017.
+ * Buzzing Android HSV color Picker dialog.
  */
 
 import android.app.AlertDialog;
